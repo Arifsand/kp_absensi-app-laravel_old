@@ -21,14 +21,25 @@
         height: auto !important;
         border-radius: 15px;
     }
+
+    #map {
+        height: 200px;
+    }
 </style>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<!-- Make sure you put this AFTER Leaflet's CSS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 @endsection
 
 @section('content')
 <div class="row" style="margin-top: 70px">
     <div class="col">
+        <!-- ## Menampilkan/tidak kolom radius ## -->
         <!-- <input type="text" id="lokasi"> -->
         <input type="hidden" id="lokasi">
+
         <div class="webcam-capture"></div>
     </div>
 </div>
@@ -38,6 +49,11 @@
             <ion-icon name="camera-outline"></ion-icon>
             Absen Masuk
         </button>
+    </div>
+</div>
+<div class="row mt-2">
+    <div class="col">
+        <div id="map"></div>
     </div>
 </div>
 @endsection
@@ -60,6 +76,27 @@
 
     function successCallback(position) {
         lokasi.value = position.coords.latitude + ',' + position.coords.longitude;
+
+        var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 18);
+
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+
+        var marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
+
+        // ## Menentukan Radius Absensi, Pilih Salah Satu ##
+        // # Yang Atas Radius Untuk latihan (menggunakan radius lokasi terkini) #
+        //  # Yang Bawah Radius Kantor Alan bakery #
+        var circle = L.circle([position.coords.latitude, position.coords.longitude], {
+            // var circle = L.circle([0.4490211, 101.455997], {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.5,
+            //  ## Mengatur Jarak Radius (dalam meter) ##
+            radius: 15
+        }).addTo(map);
     }
 
     function errorCallback() {
