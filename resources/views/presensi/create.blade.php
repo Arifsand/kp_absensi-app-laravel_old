@@ -45,10 +45,17 @@
 </div>
 <div class="row">
     <div class="col">
+        @if ($cek > 0)
+        <button id="takeabsen" class="btn btn-danger btn-block">
+            <ion-icon name="camera-outline"></ion-icon>
+            Absen Pulang
+        </button>
+        @else
         <button id="takeabsen" class="btn btn-primary btn-block">
             <ion-icon name="camera-outline"></ion-icon>
             Absen Masuk
         </button>
+        @endif
     </div>
 </div>
 <div class="row mt-2">
@@ -100,7 +107,60 @@
     }
 
     function errorCallback() {
-
+        alert("Maaf, Kami Tidak Dapat Mengakses Lokasi Anda, Silahkan Refresh Laman Absensi");
     }
+
+    //  ## Buat Menyimpan Data, Saat Tombol TakeAbsen di Klik ##
+    $("#takeabsen").click(function(e) {
+        // alert('test');
+
+        // ## Perintah mengambil gambar ##
+        // ## 'uri' berguna untuk mengenkripsi/encode gambar dalam enkripsi base64 ##
+        Webcam.snap(function(uri) {
+            image = uri;
+        });
+
+        // ## Untuk Mendapatkan Lokasinya ##
+        var lokasi = $("#lokasi").val();
+        // alert(lokasi);
+
+        // ## Proses Simpan Data, Mengguankan AJAX ##
+        $.ajax({
+            type: 'POST',
+            url: '/presensi/store',
+            data: {
+                _token: "{{ csrf_token() }}",
+                image: image,
+                lokasi: lokasi
+            },
+            cache: false,
+            success: function(respond) {
+                // ## var status, Untuk mensplit data yang di presensicontroller, bagaian:
+                // ## echo "success|Terimakasih Telah Melakukan Absen Pulang, Hati-hati di Jalan|out"; ##
+                // ## split kalau  di php namanya explode, yaitu memecah data menjadi array 0, 1, 2, dst ##
+                var status = respond.split("|");
+                if (status[0] == "success") {
+                    // alert('success');
+                    // ## SWEEET ALERT ##
+                    Swal.fire({
+                        title: 'Berhasil!',
+                        text: status[1], // ## Pesannya mengambil array ke 1 dari success|Terimakasih Telah Melakukan Absen Pulang/masuk (yang ada di presensicontroller) ##
+                        icon: 'success'
+                    });
+                    setTimeout("location.href='/dashboard'", 3000);
+
+                } else {
+                    // alert('error');
+
+                    // ## SWEEET ALERT ##
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Absensi Gagal Dilaksanakan, Silahkan Hubungi Tim IT',
+                        icon: 'error'
+                    });
+                }
+            }
+        });
+    });
 </script>
 @endpush
