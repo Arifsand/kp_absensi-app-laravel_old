@@ -70,6 +70,9 @@
 <audio id="notifikasi_out">
     <source src="{{ asset('assets/sound/notifikasi_out.mp3') }}" type="audio/mpeg">
 </audio>
+<audio id="radius_sound">
+    <source src="{{ asset('assets/sound/radius.mp3') }}" type="audio/mpeg">
+</audio>
 @endsection
 
 @push('myscript')
@@ -78,6 +81,7 @@
     // ## Inisialisasi Audio ##
     var notifikasi_in = document.getElementById('notifikasi_in');
     var notifikasi_out = document.getElementById('notifikasi_out');
+    var radius_sound = document.getElementById('radius_sound');
     // ##
 
     Webcam.set({
@@ -100,22 +104,23 @@
         var map = L.map('map').setView([position.coords.latitude, position.coords.longitude], 18);
 
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            maxZoom: 19,
+            maxZoom: 25,
             attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
         }).addTo(map);
 
         var marker = L.marker([position.coords.latitude, position.coords.longitude]).addTo(map);
-
         // ## Menentukan Radius Absensi, Pilih Salah Satu ##
         // # Yang Atas Radius Untuk latihan (menggunakan radius lokasi terkini) #
+        //  # Yang Tengah Radius Toko Alan bakery (untuk latihan)#
         //  # Yang Bawah Radius Kantor Alan bakery #
-        var circle = L.circle([position.coords.latitude, position.coords.longitude], {
-            // var circle = L.circle([0.4490211, 101.455997], {
+        // var circle = L.circle([position.coords.latitude, position.coords.longitude], {
+        // var circle = L.circle([0.45041767668282207, 101.4560184987767], {
+        var circle = L.circle([0.4490211, 101.455997], {
             color: 'red',
             fillColor: '#f03',
             fillOpacity: 0.5,
             //  ## Mengatur Jarak Radius (dalam meter) ##
-            radius: 15
+            radius: 10
         }).addTo(map);
     }
 
@@ -167,15 +172,20 @@
                         text: status[1], // ## Pesannya mengambil array ke 1 dari success|Terimakasih Telah Melakukan Absen Pulang/masuk (yang ada di presensicontroller) ##
                         icon: 'success'
                     });
-                    setTimeout("location.href='/dashboard'", 4000);
+                    setTimeout("location.href='/dashboard'", 5000);
 
                 } else {
                     // alert('error');
 
+                    // ## Insert Audio Ketika Diluar Radius ##
+                    if (status[2] == "radius") {
+                        radius_sound.play();
+                    }
                     // ## SWEEET ALERT ##
                     Swal.fire({
                         title: 'Error!',
-                        text: 'Absensi Gagal Dilaksanakan, Silahkan Hubungi Tim IT',
+                        // text: 'Absensi Gagal Dilaksanakan, Silahkan Hubungi Tim IT',
+                        text: status[1], // ## pesannya mengambil array ke 1 dari pesan2 sebelumnya, secara dinamis ##
                         icon: 'error'
                     });
                 }
