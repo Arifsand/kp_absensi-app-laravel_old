@@ -40,16 +40,25 @@ class PresensiController extends Controller
         $longitudeuser = $lokasiuser[1];
 
         $jarak = $this->distance($latitudekantor, $longitudekantor, $latitudeuser, $longitudeuser);
-        $radius = round($jarak["meters"]); // ## Fungsi Round Untuk Menggenapkan Angka pada Jarak nya ##
+        $radius = round($jarak["meters"]); // Fungsi Round Untuk Menggenapkan Angka pada Jarak nya ##
         // $radius = $jarak["meters"];
         // dd($radius);
+
+        // ## Mengecek Data Absensi di Database ##
+        $cek = DB::table('presensi')->where('tgl_presensi', $tgl_presensi)->where('nik', $nik)->count();
+
+        if ($cek > 0) {  // Lebih Dari nol, berarti User sudah melakukan Absensi ##
+            $ket = "out";
+        } else {   // Jika nol, berarti User belum melakukan Absensi ##
+            $ket = "in";
+        }
 
         $image = $request->image;
         // ## Tempat Menyimpan gambar ##
         $folderPath = "public/uploads/absensi/";
 
         // ## Format Gambar Yang Akan Disimpan ##
-        $formatName = $nik . "_" . $tgl_presensi . "_" . date("H-i-s");
+        $formatName = $nik . "_" . $tgl_presensi . "_" . $ket . "_" . date("H-i-s");
 
         // ## Karena Tadi Image nya di Encode Menggunakan Base64, Maka Sekarang Akan di Decode File image nya ##
         $image_parts = explode(";base64", $image);
@@ -69,7 +78,6 @@ class PresensiController extends Controller
         ];
 
         // ## Mengecek Jika Karyawan Sudah Melaksanakan Absensi Dihari Itu, Maka Perintahnya Bukan Simpan Lagi, tapi Update ##
-        $cek = DB::table('presensi')->where('tgl_presensi', $tgl_presensi)->where('nik', $nik)->count();
 
         // ## IF Else untuk mengecek lokasi user berada didalam/diluar radius ##
         if ($radius > 10) {  // # jarak dalam meter #

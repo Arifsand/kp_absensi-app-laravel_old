@@ -172,7 +172,7 @@
                         text: status[1], // ## Pesannya mengambil array ke 1 dari success|Terimakasih Telah Melakukan Absen Pulang/masuk (yang ada di presensicontroller) ##
                         icon: 'success'
                     });
-                    setTimeout("location.href='/dashboard'", 5000);
+                    setTimeout("location.href='/dashboard'", 5000); // ## 5000 adalah waktu 5 detik untuk Redirect Lamannya ##
 
                 } else {
                     // alert('error');
